@@ -1,15 +1,8 @@
-import aiofiles
 import time
 
 import os 
 import sys
 
-
-class Scale:
-	less_than_or_equal_to = 0 # bar size can be between 10 to bar_size
-	more_than_or_equal_to = 1 # bar size can be between bar_size to (column_size - 
-	fill_up               = 2 # bar size fills rest of column
-	fixed_size            = 3 # bar size is bar_size
 
 
 
@@ -45,7 +38,7 @@ class Bar:
 		
 	def progress(self, amount: int):
 		amount = int(amount)
-		if (self.display_current + amount) < self.displayed_total:
+		if (self.display_current + amount) > self.displayed_total:
 			assert False, "amount given is too much compared to total"
 		self.display_current += amount
 		self._current += (self.inc * amount)
@@ -55,14 +48,6 @@ class Bar:
 			self.on_completion_flag = True
 			self.on_completion(self.ref_id)
 			self.update_screen()
-	def smooth_progress(self, amount: int):
-		amount = int(amount)
-		if (self.display_current + amount) < self.displayed_total:
-			assert False, "amount given is too much compared to total"
-		self.display_current += amount
-		for i in range(amount):
-			self._current += self.inc
-			self.update()
 
 
 
@@ -82,11 +67,7 @@ class Bar:
 		self.inc = self.bar_size / self.displayed_total
 		self.logical_total = self.bar_size
 		self._current = self.inc * self.display_current
-		#print(f"{self.bar_size=}")
-		#print(f"{columns=}")
-		#print(f"{self.total_size=}")
-		#print(self.new_line_flag)
-		#print(f"{self.inc=}")
+
 
 	def __next__(self):
 		if self.display_current < self.displayed_total:
@@ -200,18 +181,11 @@ class LoadingBars:
 		print("\n".join(self.__text))
 		print("\n".join(str(v) for v in self.__bars))
 
-	async def async_update_screen(self):
-		await aiofiles.stdout.write("\n".join(self.__text))
-
 	def display(self, *args, sep = ' '):
 		self.__text.append(sep.join(args))
 		if len(self.__text) > self.max_text:
 			self.__text.pop(0)
 		self.update_screen()
-
-	#async def async_print(self, *args, sep = ' '):
-	#	self.__text.append(sep.join(args))
-	#	await aiofiles.stdout.write("\n".join(self.__text))
 
 
 	def bar_zip(self,*bars):
@@ -259,16 +233,6 @@ if __name__ =="__main__":
 		bar9 = test.add_bar("task 9",900)
 		for i in test.bar_zip(bar1,bar2,bar3,bar4,bar5,bar6,bar7,bar8,bar9):
 			time.sleep(0.05)
-	#test.show_cursor()
-	#for i in bar1:
-	#	count += 1
-	#	test.display(f"{count}")
-	#	time.sleep(0.01)
-	#bar2 = test.add_bar("wow",400)
-	#sec = 1
-	#time.sleep(sec)
-	#bar1.update()
-	
 	#count = 0
 	#for b1 in bar1:
 	#	time.sleep(0.01)
